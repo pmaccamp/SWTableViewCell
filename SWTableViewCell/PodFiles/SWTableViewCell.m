@@ -13,13 +13,9 @@
 #define kLongPressMinimumDuration 0.16f
 
 @interface SWTableViewCell () <UIScrollViewDelegate,  UIGestureRecognizerDelegate>
-
-@property (nonatomic, weak) UITableView *containingTableView;
-
 @property (nonatomic, assign) SWCellState cellState; // The state of the cell within the scroll view, can be left, right or middle
 @property (nonatomic, assign) CGFloat additionalRightPadding;
 
-@property (nonatomic, strong) UIScrollView *cellScrollView;
 @property (nonatomic, strong) NSLayoutConstraint *leftUtilityClipConstraint, *rightUtilityClipConstraint;
 
 @property (nonatomic, strong) UILongPressGestureRecognizer *longPressGestureRecognizer;

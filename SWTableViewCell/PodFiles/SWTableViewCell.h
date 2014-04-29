@@ -36,6 +36,8 @@ typedef NS_ENUM(NSInteger, SWCellState)
 
 @interface SWTableViewCell : UITableViewCell
 
+@property (nonatomic, strong) UIScrollView *cellScrollView;
+@property (nonatomic, weak) UITableView *containingTableView;
 @property (nonatomic, copy) NSArray *leftUtilityButtons;
 @property (nonatomic, copy) NSArray *rightUtilityButtons;
 @property (nonatomic, strong) SWUtilityButtonView *leftUtilityButtonsView, *rightUtilityButtonsView;
