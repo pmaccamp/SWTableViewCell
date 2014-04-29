@@ -36,6 +36,7 @@ typedef NS_ENUM(NSInteger, SWCellState)
 
 @interface SWTableViewCell : UITableViewCell
 
+@property (nonatomic, strong) UILongPressGestureRecognizer *longPressGestureRecognizer;
 @property (nonatomic, strong) UIScrollView *cellScrollView;
 @property (nonatomic, weak) UITableView *containingTableView;
 @property (nonatomic, copy) NSArray *leftUtilityButtons;
