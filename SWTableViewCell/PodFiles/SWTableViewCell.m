@@ -240,7 +240,7 @@
     {
         self.cellScrollView.contentOffset = [self contentOffsetForCellState:_cellState];
     }
-
+    
     [self updateCellState];
 }
 
@@ -273,10 +273,10 @@
     if ([self.containingTableView.delegate respondsToSelector:@selector(tableView:shouldHighlightRowAtIndexPath:)])
     {
         NSIndexPath *cellIndexPath = [self.containingTableView indexPathForCell:self];
-
+        
         shouldHighlight = [self.containingTableView.delegate tableView:self.containingTableView shouldHighlightRowAtIndexPath:cellIndexPath];
     }
-
+    
     return shouldHighlight;
 }
 
@@ -286,14 +286,14 @@
     {
         [self setHighlighted:YES animated:NO];
     }
-
+    
     else if (gestureRecognizer.state == UIGestureRecognizerStateEnded)
     {
         // Cell is already highlighted; clearing it temporarily seems to address visual anomaly.
         [self setHighlighted:NO animated:NO];
         [self scrollViewTapped:gestureRecognizer];
     }
-
+    
     else if (gestureRecognizer.state == UIGestureRecognizerStateCancelled)
     {
         [self setHighlighted:NO animated:NO];
@@ -458,12 +458,12 @@
             break;
         }
     }
-
+    
     // Update the clipping on the utility button views according to the current position.
     CGRect frame = [self.contentView.superview convertRect:self.contentView.frame toView:self];
     self.leftUtilityClipConstraint.constant = MAX(0, CGRectGetMinX(frame) - CGRectGetMinX(self.frame));
     self.rightUtilityClipConstraint.constant = MIN(0, CGRectGetMaxX(frame) - CGRectGetMaxX(self.frame));
-
+    
     // Enable or disable the gesture recognizers according to the current mode.
     if (!self.cellScrollView.isDragging && !self.cellScrollView.isDecelerating)
     {
@@ -475,7 +475,7 @@
         self.tapGestureRecognizer.enabled = NO;
         self.longPressGestureRecognizer.enabled = NO;
     }
-
+    
     self.cellScrollView.scrollEnabled = !self.isEditing;
 }
 
@@ -600,10 +600,16 @@
 }
 
 #pragma mark - UIGestureRecognizerDelegate
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRequireFailureOfGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
+    if([otherGestureRecognizer.view isKindOfClass:[UITableView class]]){
+        return YES;
+    }
+    return NO;
+}
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
-    return YES;
+    return NO;
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
