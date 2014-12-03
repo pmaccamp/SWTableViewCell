@@ -20,7 +20,7 @@ typedef NS_ENUM(NSInteger, SWCellState)
 {
     kCellStateCenter,
     kCellStateLeft,
-    kCellStateRight,
+    kCellStateRight
 };
 
 @protocol SWTableViewCellDelegate <NSObject>
@@ -33,6 +33,10 @@ typedef NS_ENUM(NSInteger, SWCellState)
 - (BOOL)swipeableTableViewCell:(SWTableViewCell *)cell canSwipeToState:(SWCellState)state;
 - (void)swipeableTableViewCellDidEndScrolling:(SWTableViewCell *)cell;
 
+- (BOOL)swipeableTableViewCellCanSwipeLeftWithoutUtility:(SWTableViewCell *)cell;
+- (BOOL)swipeableTableViewCellCanSwipeRightWithoutUtility:(SWTableViewCell *)cell;
+- (BOOL)swipeableTableViewCellDidSwipeLeftWithoutUtility:(SWTableViewCell *)cell;
+- (BOOL)swipeableTableViewCellDidSwipeRightWithoutUtility:(SWTableViewCell *)cell;
 @end
 
 @interface SWTableViewCell : UITableViewCell
