@@ -366,21 +366,22 @@ static NSString * const kTableViewPanState = @"state";
 
 - (void)scrollViewPressed:(UIGestureRecognizer *)gestureRecognizer
 {
+    // Highlighting was causing graphical bug where cell got rendered at top of table
     if (gestureRecognizer.state == UIGestureRecognizerStateBegan && !self.isHighlighted && self.shouldHighlight)
     {
-        [self setHighlighted:YES animated:NO];
+        //[self setHighlighted:YES animated:NO];
     }
     
     else if (gestureRecognizer.state == UIGestureRecognizerStateEnded)
     {
         // Cell is already highlighted; clearing it temporarily seems to address visual anomaly.
-        [self setHighlighted:NO animated:NO];
+        //[self setHighlighted:NO animated:NO];
         [self scrollViewTapped:gestureRecognizer];
     }
     
     else if (gestureRecognizer.state == UIGestureRecognizerStateCancelled)
     {
-        [self setHighlighted:NO animated:NO];
+        //[self setHighlighted:NO animated:NO];
     }
 }
 
