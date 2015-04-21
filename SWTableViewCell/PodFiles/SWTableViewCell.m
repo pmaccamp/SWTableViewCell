@@ -654,12 +654,10 @@ static NSString * const kTableViewPanState = @"state";
         CGFloat leftThreshold = [self contentOffsetForCellState:kCellStateLeft].x + (self.leftUtilityButtonsWidth / 2);
         CGFloat rightThreshold = [self contentOffsetForCellState:kCellStateRight].x - (self.rightUtilityButtonsWidth / 2);
         
-        if (targetContentOffset->x > rightThreshold)
-        {
+        if (targetContentOffset->x > rightThreshold && _cellState != kCellStateLeft) {
             _cellState = kCellStateRight;
         }
-        else if (targetContentOffset->x < leftThreshold)
-        {
+        else if (targetContentOffset->x < leftThreshold && _cellState != kCellStateRight) {
             _cellState = kCellStateLeft;
         }
         else
