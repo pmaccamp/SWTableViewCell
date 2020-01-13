@@ -1,13 +1,16 @@
 SWTableViewCell
 ===============
 
+[![Build Status](https://travis-ci.org/addoshi/SWTableViewCell.svg?branch=master)](https://travis-ci.org/addoshi/SWTableViewCell)
+[![Coverage Status](https://coveralls.io/repos/addoshi/SWTableViewCell/badge.svg)](https://coveralls.io/r/addoshi/SWTableViewCell)
+
 <p align="center"><img src="http://i.imgur.com/njKCjK8.gif"/></p>
 
 An easy-to-use UITableViewCell subclass that implements a swipeable content view which exposes utility buttons (similar to iOS 7 Mail Application)
 
 ##Usage
 In your Podfile:
-<pre>pod 'SWTableViewCell', '~> 0.3.6'</pre>
+<pre>pod 'SWTableViewCell', '~> 0.3.7'</pre>
 
 Or just clone this repo and manually add source to project
 
@@ -133,7 +136,7 @@ If you are using a separate nib and not a prototype cell, you'll need to be sure
 
 ```
 
-Then, in the `tableView:cellForRowAtIndexPath:` method of your `UITableViewDelegate` (usually your view controller), initialize your custom cell:
+Then, in the `tableView:cellForRowAtIndexPath:` method of your `UITableViewDataSource` (usually your view controller), initialize your custom cell:
 
 ```objc
 - (UITableViewCell*)tableView:(UITableView*)tableView cellForRowAtIndexPath:(NSIndexPath*)indexPath

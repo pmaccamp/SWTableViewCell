@@ -37,6 +37,7 @@ static NSString * const kTableViewCellContentView = @"UITableViewCellContentView
 
 @implementation SWTableViewCell {
     UIView *_contentCellView;
+    BOOL layoutUpdating;
 }
 
 #pragma mark Initializers
@@ -67,6 +68,7 @@ static NSString * const kTableViewCellContentView = @"UITableViewCellContentView
 
 - (void)initializer
 {
+    layoutUpdating = NO;
     // Set up scroll view that will host our cell content
     self.cellScrollView = [[SWCellScrollView alloc] init];
     self.cellScrollView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -177,6 +179,7 @@ static NSString * const kTableViewPanState = @"state";
 
 - (void)dealloc
 {
+    _cellScrollView.delegate = nil;
     [self removeOldTableViewPanObserver];
 }
 
@@ -309,6 +312,7 @@ static NSString * const kTableViewPanState = @"state";
 
 - (void)setFrame:(CGRect)frame
 {
+    layoutUpdating = YES;
     // Fix for new screen sizes
     // Initially, the cell is still 320 points wide
     // We need to layout our subviews again when this changes so our constraints clip to the right width
@@ -317,7 +321,10 @@ static NSString * const kTableViewPanState = @"state";
     [super setFrame:frame];
     
     if (widthChanged)
+    {
         [self layoutIfNeeded];
+    }
+    layoutUpdating = NO;
 }
 
 - (void)prepareForReuse
@@ -568,59 +575,62 @@ static NSString * const kTableViewPanState = @"state";
 
 - (void)updateCellState
 {
-    // Update the cell state according to the current scroll view contentOffset.
-    for (NSNumber *numState in @[
-                                 @(kCellStateCenter),
-                                 @(kCellStateLeft),
-                                 @(kCellStateRight),
-                                 ])
+    if(layoutUpdating == NO)
     {
-        SWCellState cellState = numState.integerValue;
-        
-        if (CGPointEqualToPoint(self.cellScrollView.contentOffset, [self contentOffsetForCellState:cellState]))
+        // Update the cell state according to the current scroll view contentOffset.
+        for (NSNumber *numState in @[
+                                     @(kCellStateCenter),
+                                     @(kCellStateLeft),
+                                     @(kCellStateRight),
+                                     ])
         {
-            _cellState = cellState;
-            break;
+            SWCellState cellState = numState.integerValue;
+            
+            if (CGPointEqualToPoint(self.cellScrollView.contentOffset, [self contentOffsetForCellState:cellState]))
+            {
+                _cellState = cellState;
+                break;
+            }
         }
-    }
-    
-    // Update the clipping on the utility button views according to the current position.
-    CGRect frame = [self.contentView.superview convertRect:self.contentView.frame toView:self];
-    frame.size.width = CGRectGetWidth(self.frame);
-    
-    self.leftUtilityClipConstraint.constant = MAX(0, CGRectGetMinX(frame) - CGRectGetMinX(self.frame));
-    self.rightUtilityClipConstraint.constant = MIN(0, CGRectGetMaxX(frame) - CGRectGetMaxX(self.frame));
-    
-    if (self.isEditing) {
-        self.leftUtilityClipConstraint.constant = 0;
-        self.cellScrollView.contentOffset = CGPointMake([self leftUtilityButtonsWidth], 0);
-        _cellState = kCellStateCenter;
-    }
-    
-    self.leftUtilityClipView.hidden = (self.leftUtilityClipConstraint.constant == 0);
-    self.rightUtilityClipView.hidden = (self.rightUtilityClipConstraint.constant == 0);
-    
-    if (self.accessoryType != UITableViewCellAccessoryNone && !self.editing) {
-        UIView *accessory = [self.cellScrollView.superview.subviews lastObject];
         
-        CGRect accessoryFrame = accessory.frame;
-        accessoryFrame.origin.x = CGRectGetWidth(frame) - CGRectGetWidth(accessoryFrame) - kAccessoryTrailingSpace + CGRectGetMinX(frame);
-        accessory.frame = accessoryFrame;
+        // Update the clipping on the utility button views according to the current position.
+        CGRect frame = [self.contentView.superview convertRect:self.contentView.frame toView:self];
+        frame.size.width = CGRectGetWidth(self.frame);
+        
+        self.leftUtilityClipConstraint.constant = MAX(0, CGRectGetMinX(frame) - CGRectGetMinX(self.frame));
+        self.rightUtilityClipConstraint.constant = MIN(0, CGRectGetMaxX(frame) - CGRectGetMaxX(self.frame));
+        
+        if (self.isEditing) {
+            self.leftUtilityClipConstraint.constant = 0;
+            self.cellScrollView.contentOffset = CGPointMake([self leftUtilityButtonsWidth], 0);
+            _cellState = kCellStateCenter;
+        }
+        
+        self.leftUtilityClipView.hidden = (self.leftUtilityClipConstraint.constant == 0);
+        self.rightUtilityClipView.hidden = (self.rightUtilityClipConstraint.constant == 0);
+        
+        if (self.accessoryType != UITableViewCellAccessoryNone && !self.editing) {
+            UIView *accessory = [self.cellScrollView.superview.subviews lastObject];
+            
+            CGRect accessoryFrame = accessory.frame;
+            accessoryFrame.origin.x = CGRectGetWidth(frame) - CGRectGetWidth(accessoryFrame) - kAccessoryTrailingSpace + CGRectGetMinX(frame);
+            accessory.frame = accessoryFrame;
+        }
+        
+        // Enable or disable the gesture recognizers according to the current mode.
+        if (!self.cellScrollView.isDragging && !self.cellScrollView.isDecelerating)
+        {
+            self.tapGestureRecognizer.enabled = YES;
+            self.longPressGestureRecognizer.enabled = (_cellState == kCellStateCenter);
+        }
+        else
+        {
+            self.tapGestureRecognizer.enabled = NO;
+            self.longPressGestureRecognizer.enabled = NO;
+        }
+        
+        self.cellScrollView.scrollEnabled = !self.isEditing;
     }
-    
-    // Enable or disable the gesture recognizers according to the current mode.
-    if (!self.cellScrollView.isDragging && !self.cellScrollView.isDecelerating)
-    {
-        self.tapGestureRecognizer.enabled = YES;
-        self.longPressGestureRecognizer.enabled = (_cellState == kCellStateCenter);
-    }
-    else
-    {
-        self.tapGestureRecognizer.enabled = NO;
-        self.longPressGestureRecognizer.enabled = NO;
-    }
-    
-    self.cellScrollView.scrollEnabled = !self.isEditing;
 }
 
 #pragma mark - UIScrollViewDelegate
@@ -729,6 +739,10 @@ static NSString * const kTableViewPanState = @"state";
     }
     
     [self updateCellState];
+    
+    if (self.delegate && [self.delegate respondsToSelector:@selector(swipeableTableViewCell:didScroll:)]) {
+        [self.delegate swipeableTableViewCell:self didScroll:scrollView];
+    }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
